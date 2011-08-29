@@ -4,11 +4,22 @@ package
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
+	import flash.events.KeyboardEvent;
+	import flash.events.SoftKeyboardEvent;
 	import flash.geom.Rectangle;
 	import flash.text.StageText;
 	import flash.text.StageTextInitOptions;
 	
-	// TBD: StageText Events
+	[Event(name="change",                 type="flash.events.Event")]
+	[Event(name="focusIn",                type="flash.events.FocusEvent")]
+	[Event(name="focusOut",               type="flash.events.FocusEvent")]
+	[Event(name="keyDown",                type="flash.events.KeyboardEvent")]
+	[Event(name="keyUp",                  type="flash.events.KeyboardEvent")]
+	[Event(name="softKeyboardActivate",   type="flash.events.SoftKeyboardEvent")]
+	[Event(name="softKeyboardActivating", type="flash.events.SoftKeyboardEvent")]
+	[Event(name="softKeyboardDeactivate", type="flash.events.SoftKeyboardEvent")]
+	
 	public class NativeText extends Sprite
 	{
 		private var st:StageText;
@@ -32,6 +43,42 @@ package
 			this.st = new StageText(stio);
 			
 			this.calculateHeight();
+		}
+		
+		public override function addEventListener(type:String, listener:Function, useCapture:Boolean=false, priority:int=0, useWeakReference:Boolean=false):void
+		{
+			if (this.isEventTypeStageTypeSpecific(type))
+			{
+				this.st.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+			else
+			{
+				super.addEventListener(type, listener, useCapture, priority, useWeakReference);
+			}
+		}
+		
+		public override function removeEventListener(type:String, listener:Function, useCapture:Boolean=false):void
+		{
+			if (this.isEventTypeStageTypeSpecific(type))
+			{
+				this.st.removeEventListener(type, listener, useCapture);
+			}
+			else
+			{
+				super.removeEventListener(type, listener, useCapture);
+			}
+		}
+		
+		private function isEventTypeStageTypeSpecific(type:String):Boolean
+		{
+			return (type == Event.CHANGE ||
+					type == FocusEvent.FOCUS_IN ||
+					type == FocusEvent.FOCUS_OUT ||
+					type == KeyboardEvent.KEY_DOWN ||
+					type == KeyboardEvent.KEY_UP ||
+					type == SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATE ||
+					type == SoftKeyboardEvent.SOFT_KEYBOARD_ACTIVATING ||
+					type == SoftKeyboardEvent.SOFT_KEYBOARD_DEACTIVATE);
 		}
 		
 		private function onAddedToStage(e:Event):void
@@ -163,11 +210,14 @@ package
 		
 		public function freeze():void
 		{
+			var border:Sprite = new Sprite();
+			this.drawBorder(border);
 			var bmd:BitmapData = new BitmapData(this.st.viewPort.width, this.st.viewPort.height);
 			this.st.drawViewPortToBitmapData(bmd);
+			bmd.draw(border);
 			this.snapshot = new Bitmap(bmd);
-			this.snapshot.x = this.borderThickness / 2;
-			this.snapshot.y = this.borderThickness / 2;
+			this.snapshot.x = 0;
+			this.snapshot.y = 0;
 			this.addChild(this.snapshot);
 			this.st.visible = false;
 		}
@@ -220,11 +270,16 @@ package
 
 		private function setUpViewPort():void
 		{
-			this.st.viewPort = new Rectangle(this.x + (this.borderThickness / 2), this.y + (this.borderThickness / 2), this._width - (this.borderThickness / 2), this._height - (this.borderThickness / 2));
-			this.graphics.clear();
-			this.graphics.lineStyle(this.borderThickness, this.borderColor);
-			this.graphics.drawRoundRect(0, 0, this._width, this._height, this.borderCornerSize, this.borderCornerSize);
-			this.graphics.endFill();
+			this.st.viewPort = new Rectangle(this.x, this.y, this._width, this._height);
+			this.drawBorder(this);
+		}
+		
+		private function drawBorder(s:Sprite):void
+		{
+			s.graphics.clear();
+			s.graphics.lineStyle(this.borderThickness, this.borderColor);
+			s.graphics.drawRoundRect(0, 0, this._width, this._height, this.borderCornerSize, this.borderCornerSize);
+			s.graphics.endFill();
 		}
 		
 		private function calculateHeight():void

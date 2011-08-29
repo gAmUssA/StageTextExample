@@ -2,18 +2,12 @@ package
 {
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
-	import flash.display.StageQuality;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.events.TimerEvent;
-	import flash.geom.Rectangle;
-	import flash.text.StageText;
-	import flash.text.StageTextInitOptions;
 	
 	public class StageTextExample extends Sprite
 	{
-		private var initialized:Boolean = false;
 		public function StageTextExample()
 		{
 			super();
@@ -29,14 +23,11 @@ package
 		
 		private function doLayout(e:Event):void
 		{
-			if (this.initialized) return;
-			this.initialized = true;
-
 			this.removeChildren();
 			
 			this.nt = new NativeText(1);
-			this.nt.fontSize = 12;
-			nt.borderThickness = 5;
+			this.nt.fontSize = 30;
+			this.nt.borderThickness = 2;
 			this.nt.width = this.stage.stageWidth - (this.stage.stageWidth * .1);
 			this.nt.x = (this.stage.stageWidth / 2) - (this.nt.width / 2);
 			this.nt.y = (this.stage.stageHeight / 3) - (this.nt.height);
@@ -56,19 +47,37 @@ package
 			
 			this.square = new Sprite();
 			this.square.graphics.beginFill(0xff0000);
-			this.square.graphics.drawRect(0, 0, this.stage.stageWidth / 2, this.stage.stageHeight / 2);
-			this.square.x = this.stage.stageWidth / 4;
-			this.square.y = this.stage.stageHeight / 6;
+			this.square.graphics.drawRect(0, 0, this.stage.stageWidth * .75, this.stage.stageHeight * .75);
+			this.square.x = (this.stage.stageWidth / 2) - (this.square.width / 2);
+			this.square.y = (this.stage.stageHeight / 2) - (this.square.height / 2);
 		}
 		
 		private function onRandomize(e:MouseEvent):void
 		{
-			
+			if (this.isSquareVisible()) this.onToggleSquare();
+			this.nt.fontSize = this.getRandomWholeNumber(12, 40);
+			this.nt.color = this.getRandomHex();
+			this.nt.borderColor = this.getRandomHex();
+			this.nt.borderThickness = this.getRandomWholeNumber(1, 5);
+			this.nt.borderCornerSize = this.getRandomWholeNumber(0, 20);
+			this.nt.width = this.getRandomWholeNumber(this.stage.stageWidth / 5, this.stage.stageWidth - 10);
+			this.nt.x = this.getRandomWholeNumber(10, this.stage.stageWidth - this.nt.width);
+			this.nt.y = this.getRandomWholeNumber(10, (this.randomizeButton.y - this.nt.height));
 		}
 		
-		private function onToggleSquare(e:MouseEvent):void
+		private function getRandomWholeNumber(min:Number, max:Number):Number
 		{
-			if (this.square != null && this.contains(this.square))
+			return Math.round(((Math.random() * (max - min)) + min));
+		}
+		
+		private function getRandomHex():Number
+		{
+			return Math.round(Math.random() * 0xFFFFFF);
+		}
+		
+		private function onToggleSquare(e:MouseEvent = null):void
+		{
+			if (this.isSquareVisible())
 			{
 				this.removeChild(this.square);
 				this.nt.unfreeze();
@@ -78,6 +87,11 @@ package
 				this.nt.freeze();
 				this.addChild(this.square);
 			}
+		}
+		
+		private function isSquareVisible():Boolean
+		{
+			return (this.square != null && this.contains(this.square));
 		}
 	}
 }
