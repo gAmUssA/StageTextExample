@@ -1,3 +1,36 @@
+//  Adobe(R) Systems Incorporated Source Code License Agreement
+//  Copyright(c) 2006-2010 Adobe Systems Incorporated. All rights reserved.
+//	
+//  Please read this Source Code License Agreement carefully before using
+//  the source code.
+//	
+//  Adobe Systems Incorporated grants to you a perpetual, worldwide, non-exclusive, 
+//  no-charge, royalty-free, irrevocable copyright license, to reproduce,
+//  prepare derivative works of, publicly display, publicly perform, and
+//  distribute this source code and such derivative works in source or 
+//  object code form without any attribution requirements.    
+//	
+//  The name "Adobe Systems Incorporated" must not be used to endorse or promote products
+//  derived from the source code without prior written permission.
+//	
+//  You agree to indemnify, hold harmless and defend Adobe Systems Incorporated from and
+//  against any loss, damage, claims or lawsuits, including attorney's 
+//  fees that arise or result from your use or distribution of the source 
+//  code.
+//  
+//  THIS SOURCE CODE IS PROVIDED "AS IS" AND "WITH ALL FAULTS", WITHOUT 
+//  ANY TECHNICAL SUPPORT OR ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING,
+//  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+//  FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  ALSO, THERE IS NO WARRANTY OF 
+//  NON-INFRINGEMENT, TITLE OR QUIET ENJOYMENT.  IN NO EVENT SHALL ADOBE 
+//  OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+//  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+//  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+//  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+//  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
+//  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOURCE CODE, EVEN IF
+//  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 package
 {
 	import flash.display.GradientType;
@@ -14,13 +47,15 @@ package
 		private var _enabled:Boolean;
 		private var labelText:String;
 		private var buttonLabel:Label;
+		private var labelFontSize:uint = 18;
 		
-		public function Button(labelText:String, forcedWidth:int = -1, forcedHeight:int = -1)
+		public function Button(labelText:String, forcedWidth:int = -1, forcedHeight:int = -1, labelFontSize:int = -1)
 		{
 			super();
 			
 			this._enabled = true;
 			this.labelText = labelText;
+			if (labelFontSize != -1) this.labelFontSize = labelFontSize;
 
 			this.drawLabel(ENABLED_COLOR);
 			
@@ -44,7 +79,7 @@ package
 		private function drawLabel(color:uint):void
 		{
 			if (this.buttonLabel != null) this.removeChild(this.buttonLabel);
-			this.buttonLabel = new Label(labelText, "normal", color);
+			this.buttonLabel = new Label(labelText, "normal", color, "_sans", this.labelFontSize);
 		}
 		
 		private function placeLabel():void
