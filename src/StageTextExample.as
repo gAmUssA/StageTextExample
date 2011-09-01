@@ -62,11 +62,10 @@ package
 			this.nt = new NativeText(1);
 			this.nt.returnKeyLabel = ReturnKeyLabel.DONE;
 			this.nt.autoCorrect = true;
-			this.nt.fontSize = 50;
-			this.nt.borderThickness = 1;
+			this.nt.fontSize = 40;
+			this.nt.borderThickness = 2;
 			this.nt.fontFamily = "_sans";
 			this.nt.width = this.stage.stageWidth - (this.stage.stageWidth * .1);
-			trace(this.nt.width);
 			this.nt.x = (this.stage.stageWidth / 2) - (this.nt.width / 2);
 			this.nt.y = (this.stage.stageHeight / 3) - (this.nt.height);
 			this.addChild(this.nt);
@@ -84,7 +83,7 @@ package
 			this.addChild(this.squareButton);
 			
 			this.square = new Sprite();
-			this.square.graphics.beginFill(0xff0000);
+			this.square.graphics.beginFill(0xff0000, 1);
 			this.square.graphics.drawRect(0, 0, this.stage.stageWidth * .8, this.randomizeButton.y * .9);
 			this.square.x = (this.stage.stageWidth / 2) - (this.square.width / 2);
 			this.square.y = (this.randomizeButton.y / 2) - (this.square.height / 2);
@@ -93,10 +92,10 @@ package
 		private function onRandomize(e:MouseEvent):void
 		{
 			if (this.isSquareVisible()) this.onToggleSquare();
-			this.nt.fontSize = this.getRandomWholeNumber(12, 40);
+			this.nt.fontSize = this.getRandomWholeNumber(12, 50);
 			this.nt.color = this.getRandomHex();
 			this.nt.borderColor = this.getRandomHex();
-			this.nt.borderThickness = this.getRandomWholeNumber(1, 5);
+			this.nt.borderThickness = this.getRandomWholeNumber(1, 10);
 			this.nt.borderCornerSize = this.getRandomWholeNumber(0, 20);
 			this.nt.width = this.getRandomWholeNumber(this.stage.stageWidth / 5, this.stage.stageWidth - 10);
 			this.nt.x = this.getRandomWholeNumber(10, this.stage.stageWidth - this.nt.width);

@@ -40,7 +40,9 @@ package
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.SoftKeyboardEvent;
+	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.system.Capabilities;
 	import flash.text.StageText;
 	import flash.text.StageTextInitOptions;
 	
@@ -55,13 +57,13 @@ package
 	
 	public class NativeText extends Sprite
 	{
-		private static const BORDER_TEXT_PADDING:uint = 4;
+		private static const BORDER_TEXT_PADDING:uint = 2;
 		
 		private var st:StageText;
 		private var numberOfLines:uint;
 		private var _width:uint, _height:uint;
 		private var snapshot:Bitmap;
-		private var _borderThickness:uint = 2;
+		private var _borderThickness:uint = 0;
 		private var _borderColor:uint = 0x000000;
 		private var _borderCornerSize:uint = 0;
 
@@ -275,16 +277,15 @@ package
 		
 		public function freeze():void
 		{
+			var viewPortRectangle:Rectangle = this.getViewPortRectangle();
 			var border:Sprite = new Sprite();
 			this.drawBorder(border);
 			var bmd:BitmapData = new BitmapData(this.st.viewPort.width, this.st.viewPort.height);
 			this.st.drawViewPortToBitmapData(bmd);
-			bmd.draw(border);
+			bmd.draw(border, new Matrix(1, 0, 0, 1, this.x - viewPortRectangle.x, this.y - viewPortRectangle.y));
 			this.snapshot = new Bitmap(bmd);
-			this.snapshot.x = 0;
-			this.snapshot.y = 0;
-//			this.snapshot.x = this.borderThickness;
-//			this.snapshot.y = this.borderThickness;
+			this.snapshot.x = viewPortRectangle.x - this.x;
+			this.snapshot.y = viewPortRectangle.y - this.y;
 			this.addChild(this.snapshot);
 			this.st.visible = false;
 		}
@@ -315,7 +316,7 @@ package
 		
 		public override function set height(height:Number):void
 		{
-			// This is a NOP since the height is set automatically
+			// This is a NO-OP since the height is set automatically
 			// based on things like font size, etc.
 		}
 
@@ -340,25 +341,28 @@ package
 		{
 			if (this.stage == null || !this.stage.contains(this)) return;
 			this.calculateHeight();
-			this.st.viewPort = new Rectangle(this.x + BORDER_TEXT_PADDING, this.y + BORDER_TEXT_PADDING, this._width - BORDER_TEXT_PADDING, this._height);
-			//this.st.viewPort = new Rectangle(this.x + this.borderThickness, this.y + this.borderThickness, this._width, this._height);
+			this.st.viewPort = this.getViewPortRectangle();
 			this.drawBorder(this);
 		}
 		
-		// CORRECT
+		private function getViewPortRectangle():Rectangle
+		{
+			return new Rectangle(this.x + this.borderThickness + BORDER_TEXT_PADDING, this.y + this.borderThickness + BORDER_TEXT_PADDING, this._width - BORDER_TEXT_PADDING - this.borderThickness, this._height);
+		}
+		
 		private function drawBorder(s:Sprite):void
 		{
+			if (this.borderThickness == 0) return;
 			s.graphics.clear();
 			s.graphics.lineStyle(this.borderThickness, this.borderColor);
-			s.graphics.drawRoundRect(0, 0, this._width - (this.borderThickness), this._height - (this.borderThickness), this.borderCornerSize, this.borderCornerSize);
+			s.graphics.drawRoundRect(0, 0, this._width - (this.borderThickness), this._height, this.borderCornerSize, this.borderCornerSize);
 			s.graphics.endFill();
 		}
 		
 		private function calculateHeight():void
 		{
-			//this._height = (this.st.fontSize * this.numberOfLines) + ((this.st.fontSize / 2) * this.numberOfLines);
-			//this._height = (this.st.fontSize * this.numberOfLines) + ((this.st.fontSize / 2) * this.numberOfLines) + (this.borderThickness * 2);
-			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 4) + this.st.fontSize;
+			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
+			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
 		}
 	}
 }
