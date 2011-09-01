@@ -62,10 +62,11 @@ package
 			this.nt = new NativeText(1);
 			this.nt.returnKeyLabel = ReturnKeyLabel.DONE;
 			this.nt.autoCorrect = true;
-			this.nt.fontSize = 30;
-			this.nt.borderThickness = 2;
+			this.nt.fontSize = 50;
+			this.nt.borderThickness = 1;
 			this.nt.fontFamily = "_sans";
 			this.nt.width = this.stage.stageWidth - (this.stage.stageWidth * .1);
+			trace(this.nt.width);
 			this.nt.x = (this.stage.stageWidth / 2) - (this.nt.width / 2);
 			this.nt.y = (this.stage.stageHeight / 3) - (this.nt.height);
 			this.addChild(this.nt);

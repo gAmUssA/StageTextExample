@@ -55,15 +55,16 @@ package
 	
 	public class NativeText extends Sprite
 	{
+		private static const BORDER_TEXT_PADDING:uint = 4;
+		
 		private var st:StageText;
 		private var numberOfLines:uint;
 		private var _width:uint, _height:uint;
 		private var snapshot:Bitmap;
-		
-		public var borderThickness:uint = 2;
-		public var borderColor:uint = 0x000000;
-		public var borderCornerSize:uint = 0;
-		
+		private var _borderThickness:uint = 2;
+		private var _borderColor:uint = 0x000000;
+		private var _borderCornerSize:uint = 0;
+
 		public function NativeText(numberOfLines:uint = 1)
 		{
 			super();
@@ -74,8 +75,6 @@ package
 			this.numberOfLines = numberOfLines;
 			var stio:StageTextInitOptions = new StageTextInitOptions((this.numberOfLines > 1));
 			this.st = new StageText(stio);
-			
-			this.calculateHeight();
 		}
 		
 		public override function addEventListener(type:String, listener:Function, useCapture:Boolean=false, priority:int=0, useWeakReference:Boolean=false):void
@@ -117,7 +116,7 @@ package
 		private function onAddedToStage(e:Event):void
 		{
 			this.st.stage = this.stage;
-			this.setUpViewPort();
+			this.render();
 		}
 		
 		private function onRemoveFromStage(e:Event):void
@@ -125,6 +124,39 @@ package
 			this.st.dispose();
 		}
 		
+		public function set borderThickness(borderThickness:uint):void
+		{
+			this._borderThickness = borderThickness;
+			this.render();
+		}
+		
+		public function get borderThickness():uint
+		{
+			return this._borderThickness;
+		}
+		
+		public function set borderColor(borderColor:uint):void
+		{
+			this._borderColor = borderColor;
+			this.render();
+		}
+		
+		public function get borderColor():uint
+		{
+			return this._borderColor;
+		}
+		
+		public function set borderCornerSize(borderCornerSize:uint):void
+		{
+			this._borderCornerSize = borderCornerSize;
+			this.render();
+		}
+		
+		public function get borderCornerSize():uint
+		{
+			return this._borderCornerSize;
+		}
+
 		//// StageText properties and functions ///
 		
 		public function set autoCapitalize(autoCapitalize:String):void
@@ -165,7 +197,7 @@ package
 		public function set fontSize(fontSize:uint):void
 		{
 			this.st.fontSize = fontSize;
-			this.calculateHeight();
+			this.render();
 		}
 
 		public function set fontWeight(fontWeight:String):void
@@ -245,12 +277,14 @@ package
 		{
 			var border:Sprite = new Sprite();
 			this.drawBorder(border);
-			var bmd:BitmapData = new BitmapData(Math.round(this.st.viewPort.width), Math.round(this.st.viewPort.height));
+			var bmd:BitmapData = new BitmapData(this.st.viewPort.width, this.st.viewPort.height);
 			this.st.drawViewPortToBitmapData(bmd);
 			bmd.draw(border);
 			this.snapshot = new Bitmap(bmd);
 			this.snapshot.x = 0;
 			this.snapshot.y = 0;
+//			this.snapshot.x = this.borderThickness;
+//			this.snapshot.y = this.borderThickness;
 			this.addChild(this.snapshot);
 			this.st.visible = false;
 		}
@@ -270,7 +304,8 @@ package
 		public override function set width(width:Number):void
 		{
 			this._width = width;
-			if (this.stage != null && this.stage.contains(this)) this.setUpViewPort();
+			this.render();
+
 		}
 		
 		public override function get width():Number
@@ -292,21 +327,25 @@ package
 		public override function set x(x:Number):void
 		{
 			super.x = x;
-			if (this.stage != null && this.stage.contains(this)) this.setUpViewPort();
+			this.render();
 		}
 		
 		public override function set y(y:Number):void
 		{
 			super.y = y;
-			if (this.stage != null && this.stage.contains(this)) this.setUpViewPort();
+			this.render();
 		}
 
-		private function setUpViewPort():void
+		private function render():void
 		{
-			this.st.viewPort = new Rectangle(this.x, this.y, this._width, this._height);
+			if (this.stage == null || !this.stage.contains(this)) return;
+			this.calculateHeight();
+			this.st.viewPort = new Rectangle(this.x + BORDER_TEXT_PADDING, this.y + BORDER_TEXT_PADDING, this._width - BORDER_TEXT_PADDING, this._height);
+			//this.st.viewPort = new Rectangle(this.x + this.borderThickness, this.y + this.borderThickness, this._width, this._height);
 			this.drawBorder(this);
 		}
 		
+		// CORRECT
 		private function drawBorder(s:Sprite):void
 		{
 			s.graphics.clear();
@@ -317,7 +356,9 @@ package
 		
 		private function calculateHeight():void
 		{
-			this._height = (this.st.fontSize * this.numberOfLines) + ((this.st.fontSize / 2) * this.numberOfLines);
+			//this._height = (this.st.fontSize * this.numberOfLines) + ((this.st.fontSize / 2) * this.numberOfLines);
+			//this._height = (this.st.fontSize * this.numberOfLines) + ((this.st.fontSize / 2) * this.numberOfLines) + (this.borderThickness * 2);
+			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 4) + this.st.fontSize;
 		}
 	}
 }
