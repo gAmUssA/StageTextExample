@@ -81,7 +81,7 @@ package
 		
 		public override function addEventListener(type:String, listener:Function, useCapture:Boolean=false, priority:int=0, useWeakReference:Boolean=false):void
 		{
-			if (this.isEventTypeStageTypeSpecific(type))
+			if (this.isEventTypeStageTextSpecific(type))
 			{
 				this.st.addEventListener(type, listener, useCapture, priority, useWeakReference);
 			}
@@ -93,7 +93,7 @@ package
 		
 		public override function removeEventListener(type:String, listener:Function, useCapture:Boolean=false):void
 		{
-			if (this.isEventTypeStageTypeSpecific(type))
+			if (this.isEventTypeStageTextSpecific(type))
 			{
 				this.st.removeEventListener(type, listener, useCapture);
 			}
@@ -103,7 +103,7 @@ package
 			}
 		}
 		
-		private function isEventTypeStageTypeSpecific(type:String):Boolean
+		private function isEventTypeStageTextSpecific(type:String):Boolean
 		{
 			return (type == Event.CHANGE ||
 					type == FocusEvent.FOCUS_IN ||
