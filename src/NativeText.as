@@ -347,7 +347,10 @@ package
 		
 		private function getViewPortRectangle():Rectangle
 		{
-			return new Rectangle(this.x + this.borderThickness + BORDER_TEXT_PADDING, this.y + this.borderThickness + BORDER_TEXT_PADDING, this._width - BORDER_TEXT_PADDING - this.borderThickness, this._height);
+			return new Rectangle(this.x + this.borderThickness + BORDER_TEXT_PADDING,
+								 this.y + this.borderThickness + BORDER_TEXT_PADDING,
+								 this._width - BORDER_TEXT_PADDING - this.borderThickness,
+								 this._height);
 		}
 		
 		private function drawBorder(s:Sprite):void
@@ -362,7 +365,8 @@ package
 		private function calculateHeight():void
 		{
 			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
-			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
+			//this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
+			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + ((this.st.fontSize + osAdjustment) * this.numberOfLines);
 		}
 	}
 }
