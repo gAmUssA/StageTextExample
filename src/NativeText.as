@@ -45,6 +45,16 @@ package
 	import flash.system.Capabilities;
 	import flash.text.StageText;
 	import flash.text.StageTextInitOptions;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+	import flash.text.engine.ElementFormat;
+	import flash.text.engine.FontDescription;
+	import flash.text.engine.FontPosture;
+	import flash.text.engine.FontWeight;
+	import flash.text.engine.TextBaseline;
+	import flash.text.engine.TextBlock;
+	import flash.text.engine.TextElement;
+	import flash.text.engine.TextLine;
 	
 	[Event(name="change",                 type="flash.events.Event")]
 	[Event(name="focusIn",                type="flash.events.FocusEvent")]
@@ -362,11 +372,39 @@ package
 			s.graphics.endFill();
 		}
 		
+//		private function calculateHeight_baz():void
+//		{
+//			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
+//			//this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
+//			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + ((this.st.fontSize + osAdjustment) * this.numberOfLines);
+//		}
+		
+//		private function calculateHeight():void
+//		{
+//			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
+//			//this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
+//			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + (this.st.fontSize * this.numberOfLines);
+//		}
+
 		private function calculateHeight():void
 		{
-			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
-			//this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
-			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + ((this.st.fontSize + osAdjustment) * this.numberOfLines);
+			var fontDesc:FontDescription = new FontDescription(this.st.fontFamily, this.st.fontWeight);
+			var elementFormat:ElementFormat = new ElementFormat(fontDesc, this.st.fontSize);
+			var textElement:TextElement = new TextElement("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", elementFormat);
+			var textBlock:TextBlock = new TextBlock(textElement);
+			var textLine:TextLine = textBlock.createTextLine();
+			this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2);
 		}
+
+//		private function calculateHeight_foo():void
+//		{
+//			var textFormat:TextFormat = new TextFormat(this.st.fontFamily, this.st.fontSize, null, (this.st.fontWeight == FontWeight.BOLD), (this.st.fontPosture == FontPosture.ITALIC));
+//			var textField:TextField = new TextField();
+//			textField.defaultTextFormat = textFormat;
+//			textField.text = "Q";
+//			this._height = textField.textHeight + (borderThickness * 2) + (BORDER_TEXT_PADDING * 2);
+//			textField = null;
+//			textFormat = null;
+//		}
 	}
 }
