@@ -47,8 +47,10 @@ package
 	import flash.text.StageTextInitOptions;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	import flash.text.TextLineMetrics;
 	import flash.text.engine.ElementFormat;
 	import flash.text.engine.FontDescription;
+	import flash.text.engine.FontMetrics;
 	import flash.text.engine.FontPosture;
 	import flash.text.engine.FontWeight;
 	import flash.text.engine.TextBaseline;
@@ -67,7 +69,12 @@ package
 	
 	public class NativeText extends Sprite
 	{
-		private static const BORDER_TEXT_PADDING:uint = 2;
+		private static const BORDER_TEXT_PADDING:uint = 0;
+		
+		// Tweak these to get the text perfectly vertically centered.
+		private static const ANDROID_FONT_SIZE_MULTIPLIER:Number = .35;
+		private static const IOS_FONT_SIZE_MULTIPLIER:Number     = .25;
+		private static const DESKTOP_FONT_SIZE_MULTIPLIER:Number = .25;
 		
 		private var st:StageText;
 		private var numberOfLines:uint;
@@ -291,7 +298,6 @@ package
 			var border:Sprite = new Sprite();
 			this.drawBorder(border);
 			var bmd:BitmapData = new BitmapData(this.st.viewPort.width, this.st.viewPort.height);
-			trace(bmd, this.st.viewPort.width, this.st.viewPort.height);
 			this.st.drawViewPortToBitmapData(bmd);
 			bmd.draw(border, new Matrix(1, 0, 0, 1, this.x - viewPortRectangle.x, this.y - viewPortRectangle.y));
 			this.snapshot = new Bitmap(bmd);
@@ -358,10 +364,11 @@ package
 		
 		private function getViewPortRectangle():Rectangle
 		{
-			return new Rectangle(this.x + this.borderThickness + BORDER_TEXT_PADDING,
-				this.y + this.borderThickness + BORDER_TEXT_PADDING,
-				this._width - BORDER_TEXT_PADDING - (this.borderThickness * 2.5),
-				this._height);
+			var totalFontHeight:Number = this.getTotalFontHeight2();
+			return new Rectangle(this.x + this.borderThickness,
+				 				 this.y + this.borderThickness,
+								 Math.round(this._width - BORDER_TEXT_PADDING - (this.borderThickness * 2.5)),
+								 totalFontHeight + (totalFontHeight - this.st.fontSize));
 		}
 		
 		private function drawBorder(s:Sprite):void
@@ -375,25 +382,45 @@ package
 
 		private function calculateHeight():void
 		{
-			var osAdjustment:uint;
+			//this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + osAdjustment;
+			//this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2);
+			//this._height = this.st.fontSize + (this.borderThickness * 2) + this.getOSAdjustment();
+			var totalFontHeight:Number = this.getTotalFontHeight2();
+			this._height = totalFontHeight + (this.borderThickness * 2) + 4;
+			trace("font size: ", this.st.fontSize, "total font height:", totalFontHeight, "border:", this.borderThickness, "height: ", this._height);
+		}
+		
+		private function getTotalFontHeight():Number
+		{
+			var fontDesc:FontDescription = new FontDescription(this.st.fontFamily, this.st.fontWeight);
+			var elementFormat:ElementFormat = new ElementFormat(fontDesc, this.st.fontSize);
+			var textElement:TextElement = new TextElement("Q", elementFormat);
+			var textBlock:TextBlock = new TextBlock(textElement);
+			var textLine:TextLine = textBlock.createTextLine();
+			return textLine.totalHeight;
+		}
+
+		private function getTotalFontHeight2():Number
+		{
+			var textField:TextField = new TextField();
+			var textFormat:TextFormat = new TextFormat(this.st.fontFamily, this.st.fontSize);
+			textField.defaultTextFormat = textFormat;
+			textField.text = "QQQ";
+			var metrics:TextLineMetrics = textField.getLineMetrics(0);
+			return (metrics.ascent + metrics.descent);
+		}
+
+		private function getOSAdjustment():Number
+		{
 			if (Capabilities.os.indexOf("Linux") != -1)
 			{
-				osAdjustment = this.st.fontSize * .35;
+				return this.st.fontSize - (this.st.fontSize * ANDROID_FONT_SIZE_MULTIPLIER);
 			}
 			else if (Capabilities.os.indexOf("iPhone") != -1 || Capabilities.os.indexOf("iPod") != -1 || Capabilities.os.indexOf("iPad") != -1)
 			{
-				osAdjustment = this.st.fontSize * .25;
+				return (this.st.fontSize * IOS_FONT_SIZE_MULTIPLIER);
 			}
-			else
-			{
-				osAdjustment = this.st.fontSize * .25;
-			}
-			var fontDesc:FontDescription = new FontDescription(this.st.fontFamily, this.st.fontWeight);
-			var elementFormat:ElementFormat = new ElementFormat(fontDesc, this.st.fontSize);
-			var textElement:TextElement = new TextElement(" ", elementFormat);
-			var textBlock:TextBlock = new TextBlock(textElement);
-			var textLine:TextLine = textBlock.createTextLine();
-			this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + osAdjustment;
+			return this.st.fontSize - (this.st.fontSize * DESKTOP_FONT_SIZE_MULTIPLIER);
 		}
 	}
 }

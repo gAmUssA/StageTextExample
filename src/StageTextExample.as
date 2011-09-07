@@ -62,9 +62,9 @@ package
 			this.nt = new NativeText(1);
 			this.nt.returnKeyLabel = ReturnKeyLabel.DONE;
 			this.nt.autoCorrect = true;
-			this.nt.fontSize = 40;
+			this.nt.fontSize = 70;
 			this.nt.borderThickness = 1;
-			this.nt.fontFamily = "_sans";
+			this.nt.fontFamily = "Arial";
 			this.nt.text = "This is native text.";
 			this.nt.width = this.stage.stageWidth - (this.stage.stageWidth * .1);
 			this.nt.x = (this.stage.stageWidth / 2) - (this.nt.width / 2);
@@ -94,10 +94,10 @@ package
 		{
 			if (this.isSquareVisible()) this.onToggleSquare();
 			this.nt.fontSize = this.getRandomWholeNumber(12, 50);
-			this.nt.color = this.getRandomHex();
-			this.nt.borderColor = this.getRandomHex();
+			//this.nt.color = this.getRandomHex();
+			//this.nt.borderColor = this.getRandomHex();
 			this.nt.borderThickness = this.getRandomWholeNumber(1, 10);
-			this.nt.borderCornerSize = this.getRandomWholeNumber(0, 20);
+			//this.nt.borderCornerSize = this.getRandomWholeNumber(0, 20);
 			this.nt.width = this.getRandomWholeNumber(this.stage.stageWidth / 5, this.stage.stageWidth - 10);
 			this.nt.x = this.getRandomWholeNumber(10, this.stage.stageWidth - this.nt.width);
 			this.nt.y = this.getRandomWholeNumber(10, (this.randomizeButton.y - this.nt.height));
