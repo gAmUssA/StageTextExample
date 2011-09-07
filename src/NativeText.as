@@ -291,6 +291,7 @@ package
 			var border:Sprite = new Sprite();
 			this.drawBorder(border);
 			var bmd:BitmapData = new BitmapData(this.st.viewPort.width, this.st.viewPort.height);
+			trace(bmd, this.st.viewPort.width, this.st.viewPort.height);
 			this.st.drawViewPortToBitmapData(bmd);
 			bmd.draw(border, new Matrix(1, 0, 0, 1, this.x - viewPortRectangle.x, this.y - viewPortRectangle.y));
 			this.snapshot = new Bitmap(bmd);
@@ -358,9 +359,9 @@ package
 		private function getViewPortRectangle():Rectangle
 		{
 			return new Rectangle(this.x + this.borderThickness + BORDER_TEXT_PADDING,
-								 this.y + this.borderThickness + BORDER_TEXT_PADDING,
-								 this._width - BORDER_TEXT_PADDING - this.borderThickness,
-								 this._height);
+				this.y + this.borderThickness + BORDER_TEXT_PADDING,
+				this._width - BORDER_TEXT_PADDING - (this.borderThickness * 2.5),
+				this._height);
 		}
 		
 		private function drawBorder(s:Sprite):void
@@ -371,40 +372,28 @@ package
 			s.graphics.drawRoundRect(0, 0, this._width - (this.borderThickness), this._height, this.borderCornerSize, this.borderCornerSize);
 			s.graphics.endFill();
 		}
-		
-//		private function calculateHeight_baz():void
-//		{
-//			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
-//			//this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
-//			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + ((this.st.fontSize + osAdjustment) * this.numberOfLines);
-//		}
-		
-//		private function calculateHeight():void
-//		{
-//			var osAdjustment:uint = (Capabilities.os.indexOf("Linux") != -1) ? (this.st.fontSize * .33) : (this.st.fontSize * .225);
-//			//this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + this.st.fontSize + osAdjustment;
-//			this._height = (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + (this.st.fontSize * this.numberOfLines);
-//		}
 
 		private function calculateHeight():void
 		{
+			var osAdjustment:uint;
+			if (Capabilities.os.indexOf("Linux") != -1)
+			{
+				osAdjustment = this.st.fontSize * .35;
+			}
+			else if (Capabilities.os.indexOf("iPhone") != -1 || Capabilities.os.indexOf("iPod") != -1 || Capabilities.os.indexOf("iPad") != -1)
+			{
+				osAdjustment = this.st.fontSize * .25;
+			}
+			else
+			{
+				osAdjustment = this.st.fontSize * .25;
+			}
 			var fontDesc:FontDescription = new FontDescription(this.st.fontFamily, this.st.fontWeight);
 			var elementFormat:ElementFormat = new ElementFormat(fontDesc, this.st.fontSize);
-			var textElement:TextElement = new TextElement("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", elementFormat);
+			var textElement:TextElement = new TextElement(" ", elementFormat);
 			var textBlock:TextBlock = new TextBlock(textElement);
 			var textLine:TextLine = textBlock.createTextLine();
-			this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2);
+			this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + osAdjustment;
 		}
-
-//		private function calculateHeight_foo():void
-//		{
-//			var textFormat:TextFormat = new TextFormat(this.st.fontFamily, this.st.fontSize, null, (this.st.fontWeight == FontWeight.BOLD), (this.st.fontPosture == FontPosture.ITALIC));
-//			var textField:TextField = new TextField();
-//			textField.defaultTextFormat = textFormat;
-//			textField.text = "Q";
-//			this._height = textField.textHeight + (borderThickness * 2) + (BORDER_TEXT_PADDING * 2);
-//			textField = null;
-//			textFormat = null;
-//		}
 	}
 }
