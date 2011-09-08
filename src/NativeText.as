@@ -42,21 +42,13 @@ package
 	import flash.events.SoftKeyboardEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
-	import flash.system.Capabilities;
 	import flash.text.StageText;
 	import flash.text.StageTextInitOptions;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.text.TextLineMetrics;
-	import flash.text.engine.ElementFormat;
-	import flash.text.engine.FontDescription;
-	import flash.text.engine.FontMetrics;
 	import flash.text.engine.FontPosture;
 	import flash.text.engine.FontWeight;
-	import flash.text.engine.TextBaseline;
-	import flash.text.engine.TextBlock;
-	import flash.text.engine.TextElement;
-	import flash.text.engine.TextLine;
 	
 	[Event(name="change",                 type="flash.events.Event")]
 	[Event(name="focusIn",                type="flash.events.FocusEvent")]
@@ -69,13 +61,6 @@ package
 	
 	public class NativeText extends Sprite
 	{
-		private static const BORDER_TEXT_PADDING:uint = 0;
-		
-		// Tweak these to get the text perfectly vertically centered.
-		private static const ANDROID_FONT_SIZE_MULTIPLIER:Number = .35;
-		private static const IOS_FONT_SIZE_MULTIPLIER:Number     = .25;
-		private static const DESKTOP_FONT_SIZE_MULTIPLIER:Number = .25;
-		
 		private var st:StageText;
 		private var numberOfLines:uint;
 		private var _width:uint, _height:uint;
@@ -83,6 +68,7 @@ package
 		private var _borderThickness:uint = 0;
 		private var _borderColor:uint = 0x000000;
 		private var _borderCornerSize:uint = 0;
+		private var lineMetric:TextLineMetrics;
 
 		public function NativeText(numberOfLines:uint = 1)
 		{
@@ -357,6 +343,7 @@ package
 		private function render():void
 		{
 			if (this.stage == null || !this.stage.contains(this)) return;
+			this.lineMetric = null;
 			this.calculateHeight();
 			this.st.viewPort = this.getViewPortRectangle();
 			this.drawBorder(this);
@@ -364,11 +351,11 @@ package
 		
 		private function getViewPortRectangle():Rectangle
 		{
-			var totalFontHeight:Number = this.getTotalFontHeight2();
+			var totalFontHeight:Number = this.getTotalFontHeight();
 			return new Rectangle(this.x + this.borderThickness,
 				 				 this.y + this.borderThickness,
-								 Math.round(this._width - BORDER_TEXT_PADDING - (this.borderThickness * 2.5)),
-								 totalFontHeight + (totalFontHeight - this.st.fontSize));
+								 Math.round(this._width - (this.borderThickness * 2.5)),
+								 Math.round(totalFontHeight + (totalFontHeight - this.st.fontSize)));
 		}
 		
 		private function drawBorder(s:Sprite):void
@@ -382,45 +369,19 @@ package
 
 		private function calculateHeight():void
 		{
-			//this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2) + osAdjustment;
-			//this._height = (textLine.totalHeight) + (this.borderThickness * 2) + (BORDER_TEXT_PADDING * 2);
-			//this._height = this.st.fontSize + (this.borderThickness * 2) + this.getOSAdjustment();
-			var totalFontHeight:Number = this.getTotalFontHeight2();
+			var totalFontHeight:Number = this.getTotalFontHeight();
 			this._height = totalFontHeight + (this.borderThickness * 2) + 4;
-			trace("font size: ", this.st.fontSize, "total font height:", totalFontHeight, "border:", this.borderThickness, "height: ", this._height);
 		}
-		
+
 		private function getTotalFontHeight():Number
 		{
-			var fontDesc:FontDescription = new FontDescription(this.st.fontFamily, this.st.fontWeight);
-			var elementFormat:ElementFormat = new ElementFormat(fontDesc, this.st.fontSize);
-			var textElement:TextElement = new TextElement("Q", elementFormat);
-			var textBlock:TextBlock = new TextBlock(textElement);
-			var textLine:TextLine = textBlock.createTextLine();
-			return textLine.totalHeight;
-		}
-
-		private function getTotalFontHeight2():Number
-		{
+			if (this.lineMetric != null) return (this.lineMetric.ascent + this.lineMetric.descent);
 			var textField:TextField = new TextField();
-			var textFormat:TextFormat = new TextFormat(this.st.fontFamily, this.st.fontSize);
+			var textFormat:TextFormat = new TextFormat(this.st.fontFamily, this.st.fontSize, null, (this.st.fontWeight == FontWeight.BOLD), (this.st.fontPosture == FontPosture.ITALIC));
 			textField.defaultTextFormat = textFormat;
 			textField.text = "QQQ";
-			var metrics:TextLineMetrics = textField.getLineMetrics(0);
-			return (metrics.ascent + metrics.descent);
-		}
-
-		private function getOSAdjustment():Number
-		{
-			if (Capabilities.os.indexOf("Linux") != -1)
-			{
-				return this.st.fontSize - (this.st.fontSize * ANDROID_FONT_SIZE_MULTIPLIER);
-			}
-			else if (Capabilities.os.indexOf("iPhone") != -1 || Capabilities.os.indexOf("iPod") != -1 || Capabilities.os.indexOf("iPad") != -1)
-			{
-				return (this.st.fontSize * IOS_FONT_SIZE_MULTIPLIER);
-			}
-			return this.st.fontSize - (this.st.fontSize * DESKTOP_FONT_SIZE_MULTIPLIER);
+			this.lineMetric = textField.getLineMetrics(0);
+			return (this.lineMetric.ascent + this.lineMetric.descent);
 		}
 	}
 }
