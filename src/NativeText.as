@@ -1,5 +1,5 @@
 //  Adobe(R) Systems Incorporated Source Code License Agreement
-//  Copyright(c) 2006-2010 Adobe Systems Incorporated. All rights reserved.
+//  Copyright(c) 2006-2011 Adobe Systems Incorporated. All rights reserved.
 //	
 //  Please read this Source Code License Agreement carefully before using
 //  the source code.
@@ -355,7 +355,7 @@ package
 			return new Rectangle(this.x + this.borderThickness,
 				 				 this.y + this.borderThickness,
 								 Math.round(this._width - (this.borderThickness * 2.5)),
-								 Math.round(totalFontHeight + (totalFontHeight - this.st.fontSize)));
+								 Math.round((totalFontHeight + (totalFontHeight - this.st.fontSize)) * this.numberOfLines));
 		}
 		
 		private function drawBorder(s:Sprite):void
@@ -370,7 +370,7 @@ package
 		private function calculateHeight():void
 		{
 			var totalFontHeight:Number = this.getTotalFontHeight();
-			this._height = totalFontHeight + (this.borderThickness * 2) + 4;
+			this._height = (totalFontHeight * this.numberOfLines) + (this.borderThickness * 2) + 4;
 		}
 
 		private function getTotalFontHeight():Number
